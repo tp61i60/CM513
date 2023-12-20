@@ -10,7 +10,7 @@ import json
 
 
 # 讀取設定檔
-with open('./config.yaml') as file:
+with open('./config.yaml', encoding='utf-8') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 import toml
