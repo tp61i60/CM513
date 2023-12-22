@@ -105,13 +105,15 @@ if "shopping_cart" not in st.session_state:
     
 # 首頁
 def home():
-    st.subheader("熱門景點")
-    cols = st.columns(2)  # 新增
-    for i in range(0, min(2, len(books))):  # Display up to the first 6 entries
-        with cols[i % 2]:  # 新增
-            st.write(f" {books.at[i, 'title']}")
-            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
+    st.subheader("TOP5熱門景點")
+    cols = st.columns(5)  
+    for i in range(0, min(5, len(books))):  # Display up to the first 6 entries
+        with cols[i % 5]: 
+            st.image(books.at[i, "image"], caption=books.at[i, "title"])
     st.subheader("私房遊程")
+    st.subheader("高雄景點搜搜搜，想怎麼玩就怎麼玩🔥")
+    st.image("orders/Screenshot 2023-12-23 002157.png")
+
 
 # 景點總覽
 def view_products():
@@ -281,7 +283,6 @@ def private_tours():
 def main():
     
     st.title("西子灣沙灘會館")
-    st.write("歡迎光臨西子灣沙灘會館！")   
     st.image("https://s3-alpha-sig.figma.com/img/152b/406a/1a0e94e7a9c64f497bdd72615b2568d2?Expires=1704067200&Signature=hGOM2q7F2ObaczZ5E26wBxXMbdFhesgJLR0pbknF3hyI8ft0a72ZglpKQ408~8Gg~clBh-IaaEFcATTJoFa6w7a4X9-k--W53oJND1vkgKTwn0tsjsaIOAuohTl3AYm89I~x7XblQBrDR2e-Yp7z4J20QeCTQturkAfIsc3BSyyUSU-bWwdMQHj651uoZSD04GtM2ODhG3bXOCSq6s9DjDJoTYw1y3kjwFU8VxD9j3oqe3NolB3j2IcCsuQ2ePcFa1s~bIFm9pwuxCi22jqE2nxcE1s0ASVU8b6o3FzERTWgYVOCPqbczCCTJ1TIfJJKHBKxUtXCcZlAxY5j8Jtg3Q__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4")
     st.session_state.login = False
     
