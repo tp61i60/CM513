@@ -107,29 +107,33 @@ def home():
     
 
 
-# 商品總覽
+# 景點總覽
 def view_products():
-    st.title("商品總覽")
+    st.title("景點總覽")
+
+    # 使用 st.beta_columns 將一行分為兩列
+    cols = st.columns(2)#新增
 
     for i in range(0, len(books)):
-        st.write(f"## {books.at[i, 'title']}")
-        st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)  
-        st.write(f"**作者:** {books.at[i, 'author']}")
-        st.write(f"**類型:** {books.at[i, 'genre']}")
-        st.write(f"**金額:** {books.at[i, 'price']}")
-        
-        quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
-        
+        with cols[i % 2]:#新增
+            st.write(f"## {books.at[i, 'title']}")
+            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)  
+            st.write(f"**位置:** {books.at[i, 'author']}")
+            st.write(f"**類型:** {books.at[i, 'genre']}")
+            st.write(f"**金額:** {books.at[i, 'price']}")
+            
+            quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
+            
 
-        if st.button(f"購買 {books.at[i, 'title']}", key=f"buy_button_{i}"):
-            if "shopping_cart" not in st.session_state:
-                st.session_state.shopping_cart = []
-            st.session_state.shopping_cart.append({
-                "title": books.at[i, "title"],
-                "quantity": quantity,
-                "total_price" : int(books.at[i, 'price']) * int(quantity)  # Total price calculation
-            })
-            st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入購物車")
+            if st.button(f"選取 {books.at[i, 'title']}", key=f"buy_button_{i}"):
+                if "shopping_cart" not in st.session_state:
+                    st.session_state.shopping_cart = []
+                st.session_state.shopping_cart.append({
+                    "title": books.at[i, "title"],
+                    "quantity": quantity,
+                    "total_price" : int(books.at[i, 'price']) * int(quantity)  # Total price calculation
+                })
+                st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入購物車")
 
         st.write("---")
 
@@ -241,7 +245,7 @@ def main():
     
     st.title("西子灣沙灘會館")
     st.write("歡迎光臨西子灣沙灘會館！")   
-    st.image("https://www.seasbay.com.tw/upload/banner_list/tw_banner_list_18h09_yzepcvsjqr.jpg")
+    st.image("https://s3-alpha-sig.figma.com/img/152b/406a/1a0e94e7a9c64f497bdd72615b2568d2?Expires=1704067200&Signature=hGOM2q7F2ObaczZ5E26wBxXMbdFhesgJLR0pbknF3hyI8ft0a72ZglpKQ408~8Gg~clBh-IaaEFcATTJoFa6w7a4X9-k--W53oJND1vkgKTwn0tsjsaIOAuohTl3AYm89I~x7XblQBrDR2e-Yp7z4J20QeCTQturkAfIsc3BSyyUSU-bWwdMQHj651uoZSD04GtM2ODhG3bXOCSq6s9DjDJoTYw1y3kjwFU8VxD9j3oqe3NolB3j2IcCsuQ2ePcFa1s~bIFm9pwuxCi22jqE2nxcE1s0ASVU8b6o3FzERTWgYVOCPqbczCCTJ1TIfJJKHBKxUtXCcZlAxY5j8Jtg3Q__&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4")
     st.session_state.login = False
     
     # 登入
