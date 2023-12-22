@@ -27,6 +27,7 @@ authenticator = stauth.Authenticate(
 #global login
 #login = 0
 
+
 # 初始化使用者資訊，
 # Login 進來的人的購買紀錄
 if "user_info" not in st.session_state:
@@ -68,16 +69,18 @@ def save_user_order_history(username, current_orders):
 
 def login_page():
     # 在登入頁面以對話框的形式顯示用戶消息
-    page = st.sidebar.radio("選擇頁面", ["首頁", "熱門景點", "私房遊程", "歷史訂單", "購物車", "留言板"])
+    page = st.sidebar.radio("選擇頁面", ["首頁","測試頁", "私房遊程","所有景點", "歷史訂單", "景點搜搜搜", "留言板"])
     if page == "首頁":
         view_products()
-    elif page == "熱門景點":
+    elif page == "測試頁":
+        home()
+    elif page == "所有景點":
         popular_attractions()
     elif page == "私房遊程":
         private_tours()
     elif page == "歷史訂單":
         order_history()
-    elif page == "購物車":
+    elif page == "景點搜搜搜":
         shopping_cart_page()
     elif page == "留言板":
         message_board()
@@ -102,26 +105,29 @@ if "shopping_cart" not in st.session_state:
     
 # 首頁
 def home():
-    st.title("書店電商系統")
-    st.write("歡迎光臨書店店商系統！")
-
+    st.subheader("熱門景點")
+    cols = st.columns(2)  # 新增
+    for i in range(0, min(2, len(books))):  # Display up to the first 6 entries
+        with cols[i % 2]:  # 新增
+            st.write(f" {books.at[i, 'title']}")
+            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
+    st.subheader("私房遊程")
 
 # 景點總覽
 def view_products():
     st.title("景點推薦")
 
     # 使用 st.beta_columns 將一行分為兩列
-    cols = st.columns(2)#新增
-    for i in range(0, len(books)):
-        with cols[i % 2]:#新增
+    cols = st.columns(2)  # 新增
+    for i in range(0, min(6, len(books))):  # Display up to the first 6 entries
+        with cols[i % 2]:  # 新增
             st.write(f"## {books.at[i, 'title']}")
-            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)  
+            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
             st.write(f"**位置:** {books.at[i, 'author']}")
             st.write(f"**類型:** {books.at[i, 'genre']}")
             st.write(f"**金額:** {books.at[i, 'price']}")
-            
+
             quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
-            
 
             if st.button(f"選取 {books.at[i, 'title']}", key=f"buy_button_{i}"):
                 if "shopping_cart" not in st.session_state:
@@ -129,9 +135,9 @@ def view_products():
                 st.session_state.shopping_cart.append({
                     "title": books.at[i, "title"],
                     "quantity": quantity,
-                    "total_price" : int(books.at[i, 'price']) * int(quantity)  # Total price calculation
+                    "total_price": int(books.at[i, 'price']) * int(quantity)  # Total price calculation
                 })
-                st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入購物車")
+                st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入景點搜搜搜")
 
         st.write("---")
 
@@ -141,7 +147,7 @@ def view_products():
 def display_order():
     st.title("訂單明細")
 
-    # 顯示購物車中的商品
+    # 顯示景點搜搜搜中的商品
     for item in st.session_state.shopping_cart:
         st.write(f"{item['quantity']} 本 {item['title']}")
 
@@ -152,12 +158,12 @@ def display_order():
     order_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     st.write(f"訂單時間: {order_time}")
 
-# 購物車頁面
+# 景點搜搜搜頁面
 def shopping_cart_page():
-    st.title("購物車")
+    st.title("景點搜搜搜")
     
     if not st.session_state.shopping_cart:
-        st.write("購物車是空的，快去選購您喜歡的書籍吧！")
+        st.write("景點搜搜搜是空的，快去選購您喜歡的書籍吧！")
     else:
         # Create a Pandas DataFrame from the shopping cart data
         df = pd.DataFrame(st.session_state.shopping_cart)
@@ -227,40 +233,44 @@ def order_history():
     # 顯示表格
     st.table(df)
 
-# 熱門景點頁面
+# 所有景點頁面
 def popular_attractions():
-    st.title("熱門景點")
-    st.write("探索城市的熱門景點！在這裡找到您感興趣的地方。")
-    
+    st.title("所有景點")
+    st.write("探索城市的所有景點！在這裡找到您感興趣的地方。")
+        
     # Get selected region and category from the sidebar
-    selected_region = st.sidebar.selectbox("景點地區", ["旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
-    selected_category = st.sidebar.selectbox("景點種類", ["美食介紹", "景點遊玩"], key="category_selector")
+    cols = st.columns(2)
+    with cols[0]:
+        selected_region = st.selectbox("景點地區", ["旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
+    with cols[1]:
+        selected_category = st.selectbox("景點種類", ["美食介紹", "景點遊玩"], key="category_selector")
     
     # Filter books based on selected region and category
     filtered_books = books[(books['author'] == selected_region) & (books['genre'] == selected_category)]
 
     # Display filtered books
-    st.write(f"顯示 {selected_region} 的 {selected_category} 景點:")
+    st.write(f"篩選後的 {selected_region} 的 {selected_category} 景點:")
     
     # Iterate through filtered_books and display information
+    cols = st.columns(2)
     for i in range(len(filtered_books)):
-        try:
-            st.write(f"## {filtered_books.at[i, 'title']}")
-            st.image(filtered_books.at[i, "image"], caption=filtered_books.at[i, "title"], width=300)  
-            st.write(f"**位置:** {filtered_books.at[i, 'author']}")
-            st.write(f"**類型:** {filtered_books.at[i, 'genre']}")
-            st.write(f"**金額:** {filtered_books.at[i, 'price']}")
-            
-            quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
+        with cols[i % 2]:  
+            try:
+                st.write(f"## {filtered_books.at[i, 'title']}")
+                st.image(filtered_books.at[i, "image"], caption=filtered_books.at[i, "title"], width=300)  
+                st.write(f"**位置:** {filtered_books.at[i, 'author']}")
+                st.write(f"**類型:** {filtered_books.at[i, 'genre']}")
+                st.write(f"**金額:** {filtered_books.at[i, 'price']}")
+                
+                quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
 
-            if st.button(f"選取 {filtered_books.at[i, 'title']}", key=f"buy_button_{i}"):
-                # Add selected book to shopping cart or perform any other action
-                st.write(f"已將 {quantity} 本 {filtered_books.at[i, 'title']} 加入購物車")
+                if st.button(f"選取 {filtered_books.at[i, 'title']}", key=f"buy_button_{i}"):
+                    # Add selected book to shopping cart or perform any other action
+                    st.write(f"已將 {quantity} 本 {filtered_books.at[i, 'title']} 加入景點搜搜搜")
 
-            st.write("---")
-        except KeyError:
-            st.warning(f"索引 {i} 的資料不存在。")
-
+                st.write("---")
+            except KeyError:
+                pass  #沒有索引就略過
 # 私房遊程頁面
 def private_tours():
     st.title("私房遊程")
