@@ -224,7 +224,7 @@ def main():
     
     st.title("書店店商系統")
     st.write("歡迎光臨書店店商系統！")   
-    st.image("https://allez.one/wp-content/uploads/2022/04/%E9%9B%BB%E5%95%86%E7%B6%93%E7%87%9F1.jpg")
+    st.image("https://www.seasbay.com.tw/upload/banner_list/tw_banner_list_18h09_yzepcvsjqr.jpg")
     st.session_state.login = False
     
     # 登入

@@ -68,15 +68,20 @@ def save_user_order_history(username, current_orders):
 
 def login_page():
     # 在登入頁面以對話框的形式顯示用戶消息
-    page =  st.sidebar.radio("選擇頁面", [  "商品總覽", "購物車", "歷史訂單", "留言板"])
-    if page == "商品總覽":
+    page = st.sidebar.radio("選擇頁面", ["首頁", "熱門景點", "私房遊程", "歷史訂單", "購物車", "留言板"])
+    if page == "首頁":
         view_products()
-    elif page == "歷史訂單":        
+    elif page == "熱門景點":
+        popular_attractions()
+    elif page == "私房遊程":
+        private_tours()
+    elif page == "歷史訂單":
         order_history()
     elif page == "購物車":
-            shopping_cart_page()
+        shopping_cart_page()
     elif page == "留言板":
         message_board()
+
 
 
 
@@ -220,11 +225,23 @@ def order_history():
     # 顯示表格
     st.table(df)
 
+# 熱門景點頁面
+def popular_attractions():
+    st.title("熱門景點")
+    st.write("探索城市的熱門景點！在這裡找到您感興趣的地方。")
+
+# 私房遊程頁面
+def private_tours():
+    st.title("私房遊程")
+    st.write("尋找獨特的私房遊程，打造屬於您的旅程！")
+
+    
+
 def main():
     
-    st.title("書店店商系統")
-    st.write("歡迎光臨書店店商系統！")   
-    st.image("https://allez.one/wp-content/uploads/2022/04/%E9%9B%BB%E5%95%86%E7%B6%93%E7%87%9F1.jpg")
+    st.title("西子灣沙灘會館")
+    st.write("歡迎光臨西子灣沙灘會館！")   
+    st.image("https://www.seasbay.com.tw/upload/banner_list/tw_banner_list_18h09_yzepcvsjqr.jpg")
     st.session_state.login = False
     
     # 登入
