@@ -102,18 +102,16 @@ if "shopping_cart" not in st.session_state:
     
 # 首頁
 def home():
-    st.title("書店店商系統")
+    st.title("書店電商系統")
     st.write("歡迎光臨書店店商系統！")
-    
 
 
 # 景點總覽
 def view_products():
-    st.title("景點總覽")
+    st.title("景點推薦")
 
     # 使用 st.beta_columns 將一行分為兩列
     cols = st.columns(2)#新增
-
     for i in range(0, len(books)):
         with cols[i % 2]:#新增
             st.write(f"## {books.at[i, 'title']}")
@@ -233,13 +231,42 @@ def order_history():
 def popular_attractions():
     st.title("熱門景點")
     st.write("探索城市的熱門景點！在這裡找到您感興趣的地方。")
+    
+    # Get selected region and category from the sidebar
+    selected_region = st.sidebar.selectbox("景點地區", ["旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
+    selected_category = st.sidebar.selectbox("景點種類", ["美食介紹", "景點遊玩"], key="category_selector")
+    
+    # Filter books based on selected region and category
+    filtered_books = books[(books['author'] == selected_region) & (books['genre'] == selected_category)]
+
+    # Display filtered books
+    st.write(f"顯示 {selected_region} 的 {selected_category} 景點:")
+    
+    # Iterate through filtered_books and display information
+    for i in range(len(filtered_books)):
+        try:
+            st.write(f"## {filtered_books.at[i, 'title']}")
+            st.image(filtered_books.at[i, "image"], caption=filtered_books.at[i, "title"], width=300)  
+            st.write(f"**位置:** {filtered_books.at[i, 'author']}")
+            st.write(f"**類型:** {filtered_books.at[i, 'genre']}")
+            st.write(f"**金額:** {filtered_books.at[i, 'price']}")
+            
+            quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
+
+            if st.button(f"選取 {filtered_books.at[i, 'title']}", key=f"buy_button_{i}"):
+                # Add selected book to shopping cart or perform any other action
+                st.write(f"已將 {quantity} 本 {filtered_books.at[i, 'title']} 加入購物車")
+
+            st.write("---")
+        except KeyError:
+            st.warning(f"索引 {i} 的資料不存在。")
 
 # 私房遊程頁面
 def private_tours():
     st.title("私房遊程")
     st.write("尋找獨特的私房遊程，打造屬於您的旅程！")
 
-    
+
 
 def main():
     
