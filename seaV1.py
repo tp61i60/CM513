@@ -264,8 +264,11 @@ def popular_attractions():
     st.title("所有景點")
 
     # Get selected region and category from the sidebar
-    selected_region = st.selectbox("景點地區", ["所有地區", "旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
-    selected_category = st.selectbox("景點種類", ["所有種類", "美食介紹", "景點遊玩"], key="category_selector")
+    cols = st.columns(2)
+    with cols[0]:
+        selected_region = st.selectbox("景點地區", ["所有地區", "旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
+    with cols[1]:
+        selected_category = st.selectbox("景點種類", ["所有種類", "美食介紹", "景點遊玩"], key="category_selector")
 
     if selected_region == "所有地區" and selected_category == "所有種類":
         view_products()
