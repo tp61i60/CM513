@@ -2,6 +2,7 @@
 #password加密過後的資料
 #用套件加密的小程式
 #cookie:追蹤人，一旦登錄就知道是誰
+#帳號:jsmith 密碼:abc
 credentials:
   usernames:
     jsmith:
