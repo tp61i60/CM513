@@ -7,6 +7,7 @@ from yaml.loader import SafeLoader
 import copy
 import os
 import json
+import webbrowser
 
 
 # 讀取設定檔
@@ -109,6 +110,24 @@ def home():
     st.image("orders/Screenshot 2023-12-23 002157.png")
 
 
+
+# buy_button 按鈕
+if "shopping_cart" not in st.session_state:
+    st.session_state.shopping_cart = []
+def buy_button(book_index):
+    buy_button_key = f"buy_button_{book_index}"
+    if st.button(f"選取 {books.at[book_index, 'title']}", key=buy_button_key):
+        if any(item['景點'] == books.at[book_index, 'title'] for item in st.session_state.shopping_cart):
+            st.warning("此景點已經加入景點搜搜搜")
+        else:
+            st.session_state.shopping_cart.append({
+                "景點": books.at[book_index, "title"],
+                "地區": books.at[book_index, "author"],
+                "類型": books.at[book_index, "genre"],  
+                        })
+            st.write(f"已將 {books.at[book_index, 'title']} 加入景點搜搜搜")
+
+
 # 景點總覽
 def view_products():
     st.subheader("TOP4熱門景點")
@@ -120,20 +139,8 @@ def view_products():
             st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
             st.write(f"位置: {books.at[i, 'author']}")
             st.write(f"類型: {books.at[i, 'genre']}")
-            st.write(f"金額: {books.at[i, 'price']}")
-
-            quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
-
-            if st.button(f"選取 {books.at[i, 'title']}", key=f"buy_button_{i}"):
-                if "shopping_cart" not in st.session_state:
-                    st.session_state.shopping_cart = []
-                st.session_state.shopping_cart.append({
-                    "title": books.at[i, "title"],
-                    "quantity": quantity,
-                    "total_price": int(books.at[i, 'price']) * int(quantity)  # Total price calculation
-                })
-                st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入景點搜搜搜")
-
+            # 使用 buy_button 函數處理按鈕邏輯
+            buy_button(i)
 
 
 # 顯示訂單
@@ -142,7 +149,8 @@ def display_order():
 
     # 顯示景點搜搜搜中的商品
     for item in st.session_state.shopping_cart:
-        st.write(f"{item['quantity']} 本 {item['title']}")
+        st.write(f"{item['gender']} 本 {item['title']}")
+
 
     # 顯示其他訂單相關資訊，例如總金額、訂單時間等
     total_expense = sum(item["total_price"] for item in st.session_state.shopping_cart)
@@ -156,7 +164,7 @@ def shopping_cart_page():
     st.title("景點搜搜搜")
     
     if not st.session_state.shopping_cart:
-        st.write("景點搜搜搜是空的，快去選購您喜歡的書籍吧！")
+        st.write("景點搜搜搜是空的，快去選有興趣的景點吧！")
     else:
         # Create a Pandas DataFrame from the shopping cart data
         df = pd.DataFrame(st.session_state.shopping_cart)
@@ -164,7 +172,7 @@ def shopping_cart_page():
         # Display the DataFrame as a table
         st.table(df)
 
-        pay = st.button('結帳')
+        pay = st.button('Google導航')
 
         if pay:
             st.session_state.show_payment = True
@@ -195,19 +203,15 @@ def message_board():
     # 初始化 session_state
     if "past_messages" not in st.session_state:
         st.session_state.past_messages = []
-
     # 在應用程式中以對話框的形式顯示用戶消息
     with st.chat_message("user"):
         st.write("歡迎來到留言板！")
-
     # 接收用戶輸入
     prompt = st.text_input("在這裡輸入您的留言")
-
     # 如果用戶有輸入，則將留言加入 session_state 中
     if prompt:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         st.session_state.past_messages.append({"user": "user", "message": f"{timestamp} - {prompt}"})
-
     # 留言板中顯示過去的留言
     with st.expander("過去的留言"):
         # 顯示每條留言
@@ -226,38 +230,6 @@ def order_history():
     # 顯示表格
     st.table(df)
 
-
-
-# filter景點頁面  暫時無用
-def display_selected_attractions(selected_region, selected_category):
-    # 選擇地區
-    selected_region = st.selectbox("景點地區", ["所有地區", "旗津海港", "駁二時尚", "鹽埕風格", "西子灣海風"], key="region_selector")
-    # 根據選擇的地區篩選數據
-    filtered_books = books if selected_region == "所有地區" else [item for item in data if item["地區"] == selected_region]
-
-    filtered_books = books[(books['author'] == selected_region) & (books['genre'] == selected_category)]
-
-    filtered_data = filtered_data if selected_category == "所有種類" else [item for item in filtered_data if item["種類"] == selected_category]
-    # Iterate through all books and display information
-    cols = st.columns(2)
-    for i in range(len(filtered_books)):
-        with cols[i % 2]:  
-            try:
-                st.write(f"{filtered_books.at[i, 'title']}")
-                st.image(filtered_books.at[i, "image"], caption=filtered_books.at[i, "title"], width=300)  
-                st.write(f"位置: {filtered_books.at[i, 'author']}")
-                st.write(f"**類型: {filtered_books.at[i, 'genre']}")
-                st.write(f"金額: {filtered_books.at[i, 'price']}")
-                
-                quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
-
-                if st.button(f"選取 {filtered_books.at[i, 'title']}", key=f"buy_button_{i}"):
-                    # Add selected book to shopping cart or perform any other action
-                    st.write(f"已將 {quantity} 本 {filtered_books.at[i, 'title']} 加入景點搜搜搜")
-
-                st.write("---")
-            except KeyError:
-                pass  #沒有索引就略過
 
 # 所有景點頁面
 def popular_attractions():
@@ -278,24 +250,16 @@ def popular_attractions():
         # 根據選擇的種類再次篩選數據
         filtered_data = filtered_data if selected_category == "所有種類" else filtered_data[filtered_data["genre"] == selected_category]
         # 輸出結果
-        for i, row in filtered_data.iterrows():
-            st.write(f"{row['title']}")
-            st.image(row["image"], caption=row["title"], width=500)
-            st.write(f"位置: {row['author']}")
-            st.write(f"類型: {row['genre']}")
-            st.write(f"金額: {row['price']}")
-            
-            quantity = st.number_input(f"購買數量 {i}", min_value=1, value=1, key=f"quantity_{i}")
 
-            if st.button(f"選取 {books.at[i, 'title']}", key=f"buy_button_{i}"):
-                if "shopping_cart" not in st.session_state:
-                    st.session_state.shopping_cart = []
-                st.session_state.shopping_cart.append({
-                    "title": books.at[i, "title"],
-                    "quantity": quantity,
-                    "total_price": int(books.at[i, 'price']) * int(quantity)  # Total price calculation
-                })
-                st.write(f"已將 {quantity} 本 {books.at[i, 'title']} 加入景點搜搜搜")
+        cols = st.columns(2)  # 新增
+        for i, (_, row) in enumerate(filtered_data.iterrows()):  # Iterate over rows in filtered_data
+            with cols[i % 2]:  # Switch columns for each iteration
+                st.write(f"{row['title']}")
+                st.image(row["image"], caption=row["title"], width=300)
+                st.write(f"位置: {row['author']}")
+                st.write(f"類型: {row['genre']}")
+                        # 使用 buy_button 函數處理按鈕邏輯
+                buy_button(i)
 
 
 
