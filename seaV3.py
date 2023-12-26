@@ -7,7 +7,6 @@ from yaml.loader import SafeLoader
 import copy
 import os
 import json
-import webbrowser
 
 
 # 讀取設定檔
@@ -114,9 +113,8 @@ def home():
 # buy_button 按鈕
 if "shopping_cart" not in st.session_state:
     st.session_state.shopping_cart = []
-def buy_button():
-    buy_button_key = f"buy_button_{book_index}"
-    if st.button(f"選取 {books.at[book_index, 'title']}", key=buy_button_key):
+def buy_button(book_index):
+    if st.button(f"選取 {books.at[book_index, 'title']}", key=f"buy_button_{book_index}"):
         if any(item['景點'] == books.at[book_index, 'title'] for item in st.session_state.shopping_cart):
             st.warning("此景點已經加入景點搜搜搜")
         else:
@@ -126,24 +124,6 @@ def buy_button():
                 "類型": books.at[book_index, "genre"],  
                         })
             st.write(f"已將 {books.at[book_index, 'title']} 加入景點搜搜搜")
-
-
-
-
-# 景點總覽
-def view_products():
-    st.subheader("TOP4熱門景點")
-    # 使用 st.beta_columns 將一行分為兩列
-    cols = st.columns(2)  # 新增
-    for i in range(0, min(4, len(books))):  # Display up to the first 6 entries
-        with cols[i % 2]:  # 新增
-            st.write(f"{books.at[i, 'title']}")
-            st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
-            st.write(f"位置: {books.at[i, 'author']}")
-            st.write(f"類型: {books.at[i, 'genre']}")
-            # 使用 buy_button 函數處理按鈕邏輯
-            buy_button(books, i)
-
 
 # 顯示訂單
 def display_order():
@@ -172,6 +152,14 @@ def shopping_cart_page():
         df = pd.DataFrame(st.session_state.shopping_cart)
 
         # Display the DataFrame as a table
+        for index, row in df.iterrows():
+            # Add a "Cancel" button for each row
+            if st.button(f"Cancel {index}"):
+                # Remove the corresponding row from the DataFrame
+                df = df.drop(index)
+                # Update the session state with the modified DataFrame
+                st.session_state.shopping_cart = df.to_dict(orient='records')
+
         st.table(df)
 
         pay = st.button('Google導航')
@@ -250,12 +238,11 @@ def popular_attractions():
         cols = st.columns(2)  # 新增
         for i in range(0, len(books)): 
                 with cols[i % 2]:  # 新增
-                    st.write(f"{books.at[i, 'title']}")
+                    st.write(f"**{books.at[i, 'title']}**")
                     st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
                     st.write(f"位置: {books.at[i, 'author']}")
                     st.write(f"類型: {books.at[i, 'genre']}")
- 
-
+                    buy_button(i)
     else:
         # 根據選擇的地區篩選數據
         filtered_data = books if selected_region == "所有地區" else books[books["author"] == selected_region]
@@ -266,12 +253,22 @@ def popular_attractions():
         cols = st.columns(2)  # 新增
         for i, (_, row) in enumerate(filtered_data.iterrows()):  # Iterate over rows in filtered_data
             with cols[i % 2]:  # Switch columns for each iteration
-                st.write(f"{row['title']}")
-                st.image(row["image"], caption=row["title"], width=300)
+                titlename = st.write(f"**{row['title']}**")
+                st.image(row["image"], width=300)
                 st.write(f"位置: {row['author']}")
                 st.write(f"類型: {row['genre']}")
                         # 使用 buy_button 函數處理按鈕邏輯
-
+                titlename = row['title']
+                if st.button(f"選取 {titlename}", key=f"buy_button_{i}"):
+                    if any(item['景點'] == titlename for item in st.session_state.shopping_cart):
+                        st.warning("此景點已經加入景點搜搜搜")
+                    else:
+                        st.session_state.shopping_cart.append({
+                            "景點": row["title"],
+                            "地區": row["author"],
+                            "類型": row["genre"],  
+                        })
+                        st.write(f"已將 {row['title']} 加入景點搜搜搜")
 
 
 def main():
