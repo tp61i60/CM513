@@ -114,7 +114,7 @@ def home():
 # buy_button 按鈕
 if "shopping_cart" not in st.session_state:
     st.session_state.shopping_cart = []
-def buy_button(book_index):
+def buy_button():
     buy_button_key = f"buy_button_{book_index}"
     if st.button(f"選取 {books.at[book_index, 'title']}", key=buy_button_key):
         if any(item['景點'] == books.at[book_index, 'title'] for item in st.session_state.shopping_cart):
@@ -126,6 +126,8 @@ def buy_button(book_index):
                 "類型": books.at[book_index, "genre"],  
                         })
             st.write(f"已將 {books.at[book_index, 'title']} 加入景點搜搜搜")
+
+
 
 
 # 景點總覽
@@ -140,7 +142,7 @@ def view_products():
             st.write(f"位置: {books.at[i, 'author']}")
             st.write(f"類型: {books.at[i, 'genre']}")
             # 使用 buy_button 函數處理按鈕邏輯
-            buy_button(i)
+            buy_button(books, i)
 
 
 # 顯示訂單
@@ -243,7 +245,17 @@ def popular_attractions():
         selected_category = st.selectbox("景點種類", ["所有種類", "美食介紹", "景點遊玩"], key="category_selector")
 
     if selected_region == "所有地區" and selected_category == "所有種類":
-        view_products()
+        st.subheader("所有景點")
+    # 使用 st.beta_columns 將一行分為兩列
+        cols = st.columns(2)  # 新增
+        for i in range(0, len(books)): 
+                with cols[i % 2]:  # 新增
+                    st.write(f"{books.at[i, 'title']}")
+                    st.image(books.at[i, "image"], caption=books.at[i, "title"], width=300)
+                    st.write(f"位置: {books.at[i, 'author']}")
+                    st.write(f"類型: {books.at[i, 'genre']}")
+ 
+
     else:
         # 根據選擇的地區篩選數據
         filtered_data = books if selected_region == "所有地區" else books[books["author"] == selected_region]
@@ -259,7 +271,6 @@ def popular_attractions():
                 st.write(f"位置: {row['author']}")
                 st.write(f"類型: {row['genre']}")
                         # 使用 buy_button 函數處理按鈕邏輯
-                buy_button(i)
 
 
 
